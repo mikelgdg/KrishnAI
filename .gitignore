@@ -1,0 +1,70 @@
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Entornos virtuales
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Archivos de configuración sensibles
+*.env
+config.py
+secrets.toml
+
+# Archivos de claves API (IMPORTANTE: mantener seguras las claves)
+claves_api.json
+base_textos.json
+
+# Archivos del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Archivos de VSCode
+.vscode/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.log
+app_*_backup.py
+
+# Archivos grandes que no necesitamos en el repositorio
+CUENTOS/
+libro/
+SABIDURÍA/
+*.epub
+*.pdf
+
+# Archivos específicos del proyecto que pueden ser grandes
+bhagavad_gita_*.json
