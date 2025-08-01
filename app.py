@@ -638,11 +638,7 @@ with st.sidebar:
         icono = "🤖" if genero_actual == genero_detectado else "👤"
         #st.markdown(f"**{genero_actual}** {icono}")
         
-        # Botón para cambiar manualmente
-        if st.button(" 🔄 ", help="Cambiar género manualmente", key="toggle_genero"):
-            nuevo_genero = "Masculino" if genero_actual == "Femenino" else "Femenino"
-            st.session_state.genero_manual = nuevo_genero
-            st.rerun()
+    
     
     # Guardar el nombre en session_state
     if nombre_usuario:
