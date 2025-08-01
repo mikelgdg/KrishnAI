@@ -48,15 +48,22 @@ def cargar_bhagavad_gita(path="bhagavad_gita.json"):
     if not archivo_usado and os.path.exists("Bhagavad-Gita-Anonimo.txt"):
         st.info("🔄 Procesando el Bhagavad Gita por primera vez...")
         try:
-            # Ejecutar el procesador automáticamente
-            exec(open('procesado_bhagavad_gita_txt_corregido.py').read())
+            # Importar y ejecutar el procesador
+            from procesado_bhagavad_gita_txt_corregido import procesar_bhagavad_gita_txt
+            
+            # Ejecutar el procesamiento
+            resultado = procesar_bhagavad_gita_txt("Bhagavad-Gita-Anonimo.txt", "bhagavad_gita_txt_corregido.json")
+            
             # Verificar si se creó el archivo
-            if os.path.exists("bhagavad_gita_txt_corregido.json"):
+            if resultado and os.path.exists("bhagavad_gita_txt_corregido.json"):
                 archivo_usado = "bhagavad_gita_txt_corregido.json"
                 st.success("✅ Bhagavad Gita procesado correctamente")
                 st.rerun()  # Reiniciar la app para cargar el archivo
+            else:
+                st.error("❌ No se pudo crear el archivo JSON del Bhagavad Gita")
         except Exception as e:
             st.error(f"❌ Error procesando el Bhagavad Gita: {e}")
+            st.error("Por favor, contacta al administrador o intenta más tarde.")
     
     if not archivo_usado:
         st.error("❌ Error: No se encontró ningún archivo del Bhagavad Gita y no se pudo procesar automáticamente.")
