@@ -606,7 +606,7 @@ with st.sidebar:
     # Configuración Personal - Compacta
 
     # Configuración Personal - Compacta en dos columnas
-    col1, col2 = st.sidebar.columns([1.6, 1])
+    col1, col2 = st.sidebar.columns([1.6, 0])
     with col1:
         st.markdown("### Nombre")
         nombre_usuario = st.text_input(
@@ -617,7 +617,7 @@ with st.sidebar:
             key="nombre_input"
         )
     with col2:
-        st.markdown("### Género")
+        #st.markdown("### Género")
         # Detectar género automáticamente si el nombre cambió
         if nombre_usuario and nombre_usuario != st.session_state.get('ultimo_nombre_procesado', ''):
             # Solo llamar a detección si el nombre cambió
