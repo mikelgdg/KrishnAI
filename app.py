@@ -606,7 +606,7 @@ with st.sidebar:
     # Configuración Personal - Compacta
 
     # Configuración Personal - Compacta en dos columnas
-    col1, col2 = st.sidebar.columns([1, 1])
+    col1, col2 = st.sidebar.columns([1.6, 1])
     with col1:
         st.markdown("### Nombre")
         nombre_usuario = st.text_input(
@@ -639,7 +639,7 @@ with st.sidebar:
         #st.markdown(f"**{genero_actual}** {icono}")
         
         # Botón para cambiar manualmente
-        if st.button("🔄", help="Cambiar género manualmente", key="toggle_genero"):
+        if st.button(" 🔄 ", help="Cambiar género manualmente", key="toggle_genero"):
             nuevo_genero = "Masculino" if genero_actual == "Femenino" else "Femenino"
             st.session_state.genero_manual = nuevo_genero
             st.rerun()
