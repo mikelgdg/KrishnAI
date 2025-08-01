@@ -257,13 +257,14 @@ def extraer_versos_citados_del_historial(historial_messages, bhagavad_gita, vent
     
     return versos_citados, textos_prohibidos
 
-def obtener_tratamiento_genero(nombre_usuario, genero=None):
+def obtener_tratamiento_genero(nombre_usuario, genero=None, api_rotator=None):
     """
     Determina el tratamiento correcto según el género.
     
     Args:
         nombre_usuario: Nombre del usuario
-        genero: "Masculino" o "Femenino" (del selectbox)
+        genero: "Masculino" o "Femenino" (del selectbox) - opcional
+        api_rotator: Instancia del rotador de API para consultas a Gemini
     
     Returns:
         dict con las formas correctas: querido/querida, estimado/estimada, etc.
@@ -284,6 +285,50 @@ def obtener_tratamiento_genero(nombre_usuario, genero=None):
             "devoto": "devoto"
         }
     else:
+        # Inferencia automática con Gemini
+        if api_rotator and nombre_usuario.strip():
+            try:
+                prompt_genero = f"""
+Analiza el nombre "{nombre_usuario}" y determina si es típicamente masculino o femenino.
+
+Responde ÚNICAMENTE con una sola palabra:
+- "MASCULINO" si es un nombre típicamente masculino
+- "FEMENINO" si es un nombre típicamente femenino
+- "MASCULINO" si no estás seguro (por defecto)
+
+Nombre: {nombre_usuario}
+Respuesta:"""
+                
+                response = api_rotator.generate_content_with_retry(
+                    model_name='gemini-2.0-flash',
+                    prompt=prompt_genero,
+                    generation_config={'temperature': 0.1, 'max_output_tokens': 10},
+                    max_retries=1,
+                    timeout_seconds=5
+                )
+                
+                resultado = response.text.strip().upper()
+                print(f"🤖 DEBUG: Gemini inferió género para '{nombre_usuario}': {resultado}")
+                
+                if "FEMENINO" in resultado:
+                    return {
+                        "querido": "querida",
+                        "estimado": "estimada",
+                        "hijo": "hija", 
+                        "devoto": "devota"
+                    }
+                else:
+                    return {
+                        "querido": "querido",
+                        "estimado": "estimado",
+                        "hijo": "hijo",
+                        "devoto": "devoto"
+                    }
+                    
+            except Exception as e:
+                print(f"⚠️ ERROR en inferencia de género con Gemini: {e}")
+                # Fallback a detección básica
+        
         # Fallback: detectar por nombre común (básico)
         nombres_femeninos = [
             "maria", "ana", "carmen", "isabel", "pilar", "dolores", "teresa", "rosa", "francisca", 
@@ -297,6 +342,7 @@ def obtener_tratamiento_genero(nombre_usuario, genero=None):
         # Detectar nombres que terminan típicamente en femenino
         if (nombre_lower in nombres_femeninos or 
             nombre_lower.endswith('a') and not nombre_lower.endswith('ma') and len(nombre_lower) > 3):
+            print(f"🔍 DEBUG: Detección fallback para '{nombre_usuario}': FEMENINO")
             return {
                 "querido": "querida",
                 "estimado": "estimada",
@@ -304,6 +350,7 @@ def obtener_tratamiento_genero(nombre_usuario, genero=None):
                 "devoto": "devota"
             }
         else:
+            print(f"🔍 DEBUG: Detección fallback para '{nombre_usuario}': MASCULINO")
             return {
                 "querido": "querido", 
                 "estimado": "estimado",
@@ -315,7 +362,7 @@ def construir_prompt_krishna(pregunta_arjuna, versos_contexto, bhagavad_gita, hi
     """Construye el prompt para que Krishna responda como en el Bhagavad Gita."""
     
     # Obtener el tratamiento de género correcto
-    tratamiento = obtener_tratamiento_genero(nombre_usuario, genero_usuario)
+    tratamiento = obtener_tratamiento_genero(nombre_usuario, genero_usuario, api_rotator)
     querido_a = tratamiento["querido"]
     
     # Separar versos por locutor para mejor contexto
@@ -561,7 +608,7 @@ with st.sidebar:
     # Configuración Personal - Compacta en dos columnas
     col1, col2 = st.sidebar.columns([1, 1])
     with col1:
-        st.markdown("##### Tu Nombre")
+        st.markdown("### Nombre")
         nombre_usuario = st.text_input(
             "",
             value=st.session_state.get('nombre_usuario', 'Mikel'),
@@ -570,23 +617,41 @@ with st.sidebar:
             key="nombre_input"
         )
     with col2:
-        st.markdown("##### Género")
-        genero = st.selectbox(
-            "",
-            options=["Masculino", "Femenino"],
-            index=0 if st.session_state.get('genero_usuario', 'Masculino') == 'Masculino' else 1,
-            help="Para que Krishna use 'querido/querida' correctamente",
-            label_visibility="collapsed",
-            key="genero_select"
-        )
+        st.markdown("### Género")
+        # Detectar género automáticamente si el nombre cambió
+        if nombre_usuario and nombre_usuario != st.session_state.get('ultimo_nombre_procesado', ''):
+            # Solo llamar a detección si el nombre cambió
+            tratamiento_temp = obtener_tratamiento_genero(nombre_usuario, None, api_rotator)
+            genero_detectado = "Femenino" if tratamiento_temp["querido"] == "querida" else "Masculino"
+            st.session_state.genero_detectado = genero_detectado
+            st.session_state.ultimo_nombre_procesado = nombre_usuario
+            # Limpiar override manual al cambiar nombre
+            if hasattr(st.session_state, 'genero_manual'):
+                delattr(st.session_state, 'genero_manual')
+        elif 'genero_detectado' in st.session_state:
+            genero_detectado = st.session_state.genero_detectado
+        else:
+            genero_detectado = "Masculino"  # Default
+        
+        # Mostrar género actual (detectado o manual)
+        genero_actual = st.session_state.get('genero_manual', genero_detectado)
+        icono = "🤖" if genero_actual == genero_detectado else "👤"
+        st.markdown(f"**{genero_actual}** {icono}")
+        
+        # Botón para cambiar manualmente
+        if st.button("🔄", help="Cambiar género manualmente", key="toggle_genero"):
+            nuevo_genero = "Masculino" if genero_actual == "Femenino" else "Femenino"
+            st.session_state.genero_manual = nuevo_genero
+            st.rerun()
     
-    # Guardar el nombre y género en session_state
+    # Guardar el nombre en session_state
     if nombre_usuario:
         st.session_state.nombre_usuario = nombre_usuario
     else:
         st.session_state.nombre_usuario = "Mikel"
     
-    st.session_state.genero_usuario = genero
+    # Determinar género final (manual tiene prioridad sobre detectado)
+    st.session_state.genero_usuario = st.session_state.get('genero_manual', st.session_state.get('genero_detectado', 'Masculino'))
     
     # Temperatura - Compacta
     st.markdown("### Creatividad")
