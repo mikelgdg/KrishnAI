@@ -257,8 +257,66 @@ def extraer_versos_citados_del_historial(historial_messages, bhagavad_gita, vent
     
     return versos_citados, textos_prohibidos
 
-def construir_prompt_krishna(pregunta_arjuna, versos_contexto, bhagavad_gita, historial_chat=None, nombre_usuario="Arjuna"):
+def obtener_tratamiento_genero(nombre_usuario, genero=None):
+    """
+    Determina el tratamiento correcto según el género.
+    
+    Args:
+        nombre_usuario: Nombre del usuario
+        genero: "Masculino" o "Femenino" (del selectbox)
+    
+    Returns:
+        dict con las formas correctas: querido/querida, estimado/estimada, etc.
+    """
+    # Si se especifica el género explícitamente, usarlo
+    if genero == "Femenino":
+        return {
+            "querido": "querida",
+            "estimado": "estimada", 
+            "hijo": "hija",
+            "devoto": "devota"
+        }
+    elif genero == "Masculino":
+        return {
+            "querido": "querido",
+            "estimado": "estimado",
+            "hijo": "hijo", 
+            "devoto": "devoto"
+        }
+    else:
+        # Fallback: detectar por nombre común (básico)
+        nombres_femeninos = [
+            "maria", "ana", "carmen", "isabel", "pilar", "dolores", "teresa", "rosa", "francisca", 
+            "antonia", "mercedes", "elena", "laura", "cristina", "marta", "patricia", "sandra",
+            "lucia", "monica", "silvia", "beatriz", "julia", "irene", "raquel", "sara", "sofia",
+            "andrea", "claudia", "daniela", "paola", "alejandra", "gabriela", "natalia", "carolina"
+        ]
+        
+        nombre_lower = nombre_usuario.lower().strip()
+        
+        # Detectar nombres que terminan típicamente en femenino
+        if (nombre_lower in nombres_femeninos or 
+            nombre_lower.endswith('a') and not nombre_lower.endswith('ma') and len(nombre_lower) > 3):
+            return {
+                "querido": "querida",
+                "estimado": "estimada",
+                "hijo": "hija", 
+                "devoto": "devota"
+            }
+        else:
+            return {
+                "querido": "querido", 
+                "estimado": "estimado",
+                "hijo": "hijo",
+                "devoto": "devoto"
+            }
+
+def construir_prompt_krishna(pregunta_arjuna, versos_contexto, bhagavad_gita, historial_chat=None, nombre_usuario="Arjuna", genero_usuario=None):
     """Construye el prompt para que Krishna responda como en el Bhagavad Gita."""
+    
+    # Obtener el tratamiento de género correcto
+    tratamiento = obtener_tratamiento_genero(nombre_usuario, genero_usuario)
+    querido_a = tratamiento["querido"]
     
     # Separar versos por locutor para mejor contexto
     versos_krishna = []
@@ -364,14 +422,14 @@ INSTRUCCIONES IMPORTANTES:
    - Los versos repetidos ya han sido eliminados del contexto automáticamente
 
 3. Responde ÚNICAMENTE basándote en las enseñanzas del Bhagavad Gita que se proporcionan abajo
-4. Habla en primera persona como Krishna ("Yo soy...", "Mi querido {nombre_usuario}...", "Te digo que...")
+4. Habla en primera persona como Krishna ("Yo soy...", "Mi {querido_a} {nombre_usuario}...", "Te digo que...")
 5. Usa un tono divino, sabio y compasivo, pero directo
 6. NO inventes enseñanzas - usa solo lo que está en los versos proporcionados
 7. ESTRUCTURA tu respuesta como un discurso cohesivo:
    - Para preguntas profundas: desarrolla las enseñanzas con transiciones fluidas entre ideas
    - Para saludos/preguntas simples: mantén brevedad y dignidad
 8. **⚠️ PROHIBIDO ABSOLUTAMENTE USAR ESTAS TRANSICIONES**: "Además", "Por tanto", "Comprende también", "Sin embargo", "También", "Asimismo", "Es más", "Ahora bien", "Además", "Por otra parte"
-9. **✅ USA EXCLUSIVAMENTE TRANSICIONES DEL BHAGAVAD GITA**: "Te digo que", "Sabe que", "Escucha", "Mi querido [nombre]", "Quien", "Aquel que", "Por ello"
+9. **✅ USA EXCLUSIVAMENTE TRANSICIONES DEL BHAGAVAD GITA**: "Te digo que", "Sabe que", "Escucha", "Mi {querido_a} [nombre]", "Quien", "Aquel que", "Por ello"
 10. **MANTÉN REGISTRO AUTÉNTICO DEL BHAGAVAD GITA**: 
     - PROHIBIDO usar lenguaje psicológico moderno ("experiencia", "proceso", "realizar")
     - PROHIBIDO conceptos new age ("energía", "vibración", "despertar de conciencia")
@@ -429,7 +487,7 @@ FORMATO DE REFERENCIAS OBLIGATORIO - MUY IMPORTANTE:
 
 ⚠️ RECORDATORIO CRÍTICO SOBRE TRANSICIONES:
 JAMÁS uses: "Además", "Por tanto", "También", "Sin embargo", "Es más", "Asimismo"
-USA SOLO: "Te digo que", "Sabe que", "Escucha", "Mi querido [nombre]", "Quien", "Aquel que", "Por ello"
+USA SOLO: "Te digo que", "Sabe que", "Escucha", "Mi {querido_a} [nombre]", "Quien", "Aquel que", "Por ello"
 """
     # DEBUG COMPLETO: Mostrar estadísticas del prompt
     total_chars = len(prompt)
@@ -507,11 +565,23 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     
-    # Guardar el nombre en session_state
+    # Selector de género para las expresiones
+    st.markdown("### Género")
+    genero = st.selectbox(
+        "",
+        options=["Masculino", "Femenino"],
+        index=0,
+        help="Para que Krishna use 'querido/querida' correctamente",
+        label_visibility="collapsed"
+    )
+    
+    # Guardar el nombre y género en session_state
     if nombre_usuario:
         st.session_state.nombre_usuario = nombre_usuario
     else:
         st.session_state.nombre_usuario = "Mikel"
+    
+    st.session_state.genero_usuario = genero
     
     # Temperatura - Compacta
     st.markdown("### Creatividad")
@@ -613,15 +683,17 @@ if prompt := st.chat_input(placeholder_text):
         full_response = ""
         
         try:
-            # Obtener el nombre del usuario del session_state
+            # Obtener el nombre y género del usuario del session_state
             nombre_usuario = st.session_state.get('nombre_usuario', 'Mikel')
+            genero_usuario = st.session_state.get('genero_usuario', 'Masculino')
             
             krishna_prompt = construir_prompt_krishna(
                 prompt, 
                 versos_contexto, 
                 bhagavad_gita,
                 st.session_state.messages, 
-                nombre_usuario
+                nombre_usuario,
+                genero_usuario
             )
             
             # DEBUG CRÍTICO: Mostrar información del contexto sin repeticiones
