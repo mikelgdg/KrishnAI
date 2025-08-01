@@ -557,23 +557,28 @@ with st.sidebar:
     st.sidebar.markdown('###')
 
     # Configuración Personal - Compacta
-    st.markdown("### Tu Nombre")
-    nombre_usuario = st.text_input(
-        "",
-        value="Mikel",
-        help="Krishna se dirigirá a ti por este nombre",
-        label_visibility="collapsed"
-    )
-    
-    # Selector de género para las expresiones
-    st.markdown("### Género")
-    genero = st.selectbox(
-        "",
-        options=["Masculino", "Femenino"],
-        index=0,
-        help="Para que Krishna use 'querido/querida' correctamente",
-        label_visibility="collapsed"
-    )
+
+    # Configuración Personal - Compacta en dos columnas
+    col1, col2 = st.sidebar.columns([1, 1])
+    with col1:
+        st.markdown("##### Tu Nombre")
+        nombre_usuario = st.text_input(
+            "",
+            value=st.session_state.get('nombre_usuario', 'Mikel'),
+            help="Krishna se dirigirá a ti por este nombre",
+            label_visibility="collapsed",
+            key="nombre_input"
+        )
+    with col2:
+        st.markdown("##### Género")
+        genero = st.selectbox(
+            "",
+            options=["Masculino", "Femenino"],
+            index=0 if st.session_state.get('genero_usuario', 'Masculino') == 'Masculino' else 1,
+            help="Para que Krishna use 'querido/querida' correctamente",
+            label_visibility="collapsed",
+            key="genero_select"
+        )
     
     # Guardar el nombre y género en session_state
     if nombre_usuario:
