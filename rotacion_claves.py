@@ -35,37 +35,23 @@ def load_api_keys_from_secrets():
             api_keys.append(APIKeyInfo(key_info["key"], key_info["name"]))
         
         if not api_keys:
-            # Fallback a claves hardcodeadas si no hay secrets configurados
-            st.warning("⚠️ No se encontraron claves API en secrets.toml, usando claves por defecto")
-            return [
-                APIKeyInfo("AIzaSyBVhWdlUeqXlxvf9Nldq-OId9Awoy4n1X4", "mikel_main"),
-                APIKeyInfo("AIzaSyA82YwMMkjSIBnevSXkEvfgPtA9VXcaeE8", "mikel_1"),
-                APIKeyInfo("AIzaSyDMqjrIBrLeTF8I2Rqp2M4aqS46zrCE3sI", "mikel_otra"),
-                APIKeyInfo("AIzaSyBkpLD0fw-zFodOhRGnkF4bzQBYOzFu8d0", "mikel_2"),
-                APIKeyInfo("AIzaSyAj0ppjyHkzmln9GQyPq6vRPGrncD9g3tE", "mikel_3"),
-                APIKeyInfo("AIzaSyCiOU_-G44UGRJp4QP9trrXsWBO0GlTXPQ", "mikel_4"),
-                APIKeyInfo("AIzaSyBT3yn5B42JT28fqKkA-kgDgVOfgJ3IOmM", "frank_1"),
-                APIKeyInfo("AIzaSyBul84D3oblaj09308kOa-Ptb1Rh9XKHJo", "frank_2"),
-                APIKeyInfo("AIzaSyALMtWMcZbBoUOoF3X1JFBN7visJrYH8cg", "frank_3"),
-            ]
+            # Si no hay secrets configurados, mostrar error y no funcionar
+            st.error("❌ **Error crítico**: No se encontraron claves API en secrets.toml")
+            st.error("🔑 **Configura las claves API en Streamlit Cloud:**")
+            st.error("1. Ve a Settings → Secrets en tu aplicación")
+            st.error("2. Añade las claves en formato [google] con api_keys")
+            st.error("3. Reinicia la aplicación")
+            st.stop()
         
         return api_keys
         
     except Exception as e:
-        st.error(f"Error cargando claves API desde secrets: {e}")
-        # Fallback a claves hardcodeadas en caso de error
-        st.warning("Usando claves por defecto como fallback")
-        return [
-            APIKeyInfo("AIzaSyBVhWdlUeqXlxvf9Nldq-OId9Awoy4n1X4", "mikel_main"),
-            APIKeyInfo("AIzaSyA82YwMMkjSIBnevSXkEvfgPtA9VXcaeE8", "mikel_1"),
-            APIKeyInfo("AIzaSyDMqjrIBrLeTF8I2Rqp2M4aqS46zrCE3sI", "mikel_otra"),
-            APIKeyInfo("AIzaSyBkpLD0fw-zFodOhRGnkF4bzQBYOzFu8d0", "mikel_2"),
-            APIKeyInfo("AIzaSyAj0ppjyHkzmln9GQyPq6vRPGrncD9g3tE", "mikel_3"),
-            APIKeyInfo("AIzaSyCiOU_-G44UGRJp4QP9trrXsWBO0GlTXPQ", "mikel_4"),
-            APIKeyInfo("AIzaSyBT3yn5B42JT28fqKkA-kgDgVOfgJ3IOmM", "frank_1"),
-            APIKeyInfo("AIzaSyBul84D3oblaj09308kOa-Ptb1Rh9XKHJo", "frank_2"),
-            APIKeyInfo("AIzaSyALMtWMcZbBoUOoF3X1JFBN7visJrYH8cg", "frank_3"),
-        ]
+        st.error(f"❌ **Error crítico cargando claves**: {e}")
+        st.error("🔑 **Configura las claves API en Streamlit Cloud:**")
+        st.error("1. Ve a Settings → Secrets en tu aplicación")
+        st.error("2. Añade las claves en formato [google] con api_keys")
+        st.error("3. Reinicia la aplicación")
+        st.stop()
 
 class GeminiAPIRotator:
     """Gestor de rotación de claves API para Gemini"""
