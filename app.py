@@ -603,42 +603,26 @@ with st.sidebar:
     
     st.sidebar.markdown('###')
 
-    # Configuración Personal - Compacta
-
-    # Configuración Personal - Compacta en dos columnas
-    col1, col2 = st.sidebar.columns([1.6, 0])
-    with col1:
-        st.markdown("### Nombre")
-        nombre_usuario = st.text_input(
-            "",
-            value=st.session_state.get('nombre_usuario', 'Mikel'),
-            help="Krishna se dirigirá a ti por este nombre",
-            label_visibility="collapsed",
-            key="nombre_input"
-        )
-    with col2:
-        #st.markdown("### Género")
-        # Detectar género automáticamente si el nombre cambió
-        if nombre_usuario and nombre_usuario != st.session_state.get('ultimo_nombre_procesado', ''):
-            # Solo llamar a detección si el nombre cambió
-            tratamiento_temp = obtener_tratamiento_genero(nombre_usuario, None, api_rotator)
-            genero_detectado = "Femenino" if tratamiento_temp["querido"] == "querida" else "Masculino"
-            st.session_state.genero_detectado = genero_detectado
-            st.session_state.ultimo_nombre_procesado = nombre_usuario
-            # Limpiar override manual al cambiar nombre
-            if hasattr(st.session_state, 'genero_manual'):
-                delattr(st.session_state, 'genero_manual')
-        elif 'genero_detectado' in st.session_state:
-            genero_detectado = st.session_state.genero_detectado
-        else:
-            genero_detectado = "Masculino"  # Default
-        
-        # Mostrar género actual (detectado o manual)
-        genero_actual = st.session_state.get('genero_manual', genero_detectado)
-        icono = "🤖" if genero_actual == genero_detectado else "👤"
-        #st.markdown(f"**{genero_actual}** {icono}")
-        
+    # Configuración Personal - Minimalista
+    st.markdown("### Nombre")
+    nombre_usuario = st.text_input(
+        "",
+        value=st.session_state.get('nombre_usuario', 'Mikel'),
+        help="Krishna se dirigirá a ti por este nombre",
+        label_visibility="collapsed",
+        key="nombre_input"
+    )
     
+    # Detección automática de género (invisible para el usuario)
+    if nombre_usuario and nombre_usuario != st.session_state.get('ultimo_nombre_procesado', ''):
+        # Solo llamar a detección IA si el nombre cambió
+        tratamiento_temp = obtener_tratamiento_genero(nombre_usuario, None, api_rotator)
+        genero_detectado = "Femenino" if tratamiento_temp["querido"] == "querida" else "Masculino"
+        st.session_state.genero_detectado = genero_detectado
+        st.session_state.ultimo_nombre_procesado = nombre_usuario
+    elif 'genero_detectado' not in st.session_state:
+        # Default para primera carga
+        st.session_state.genero_detectado = "Masculino"
     
     # Guardar el nombre en session_state
     if nombre_usuario:
@@ -646,8 +630,8 @@ with st.sidebar:
     else:
         st.session_state.nombre_usuario = "Mikel"
     
-    # Determinar género final (manual tiene prioridad sobre detectado)
-    st.session_state.genero_usuario = st.session_state.get('genero_manual', st.session_state.get('genero_detectado', 'Masculino'))
+    # Usar solo la detección automática de IA
+    st.session_state.genero_usuario = st.session_state.get('genero_detectado', 'Masculino')
     
     # Temperatura - Compacta
     st.markdown("### Creatividad")
