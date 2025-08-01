@@ -636,7 +636,7 @@ with st.sidebar:
         # Mostrar género actual (detectado o manual)
         genero_actual = st.session_state.get('genero_manual', genero_detectado)
         icono = "🤖" if genero_actual == genero_detectado else "👤"
-        st.markdown(f"**{genero_actual}** {icono}")
+        #st.markdown(f"**{genero_actual}** {icono}")
         
         # Botón para cambiar manualmente
         if st.button("🔄", help="Cambiar género manualmente", key="toggle_genero"):
