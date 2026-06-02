@@ -1,0 +1,88 @@
+/* Estilos personalizados para Krishna AI */
+
+/* Oscurecer la sidebar y cambiar texto a blanco */
+.css-1d391kg, .css-1lcbmhc, .stSidebar, [data-testid="stSidebar"] {
+    background-color: #2b2b2b !important;
+    color: white !important;
+}
+
+/* Texto de la sidebar en blanco */
+.css-1d391kg *, .css-1lcbmhc *, .stSidebar *, [data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+/* Títulos y headers en la sidebar */
+.css-1d391kg h1, .css-1d391kg h2, .css-1d391kg h3, .css-1d391kg h4, .css-1d391kg h5, .css-1d391kg h6,
+.stSidebar h1, .stSidebar h2, .stSidebar h3, .stSidebar h4, .stSidebar h5, .stSidebar h6,
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] h4, [data-testid="stSidebar"] h5, [data-testid="stSidebar"] h6 {
+    color: white !important;
+}
+
+/* Expandir/colapsar botones */
+.css-1d391kg .streamlit-expanderHeader,
+.stSidebar .streamlit-expanderHeader,
+[data-testid="stSidebar"] .streamlit-expanderHeader {
+    color: white !important;
+}
+
+/* Input fields en la sidebar */
+.css-1d391kg input, .stSidebar input, [data-testid="stSidebar"] input {
+    background-color: #3b3b3b !important;
+    color: white !important;
+    border: 1px solid #555 !important;
+}
+
+/* Labels y texto de input */
+.css-1d391kg label, .stSidebar label, [data-testid="stSidebar"] label {
+    color: white !important;
+}
+
+/* Botones en la sidebar */
+.css-1d391kg button, .stSidebar button, [data-testid="stSidebar"] button {
+    background-color: #444 !important;
+    color: white !important;
+    border: 1px solid #666 !important;
+}
+
+.css-1d391kg button:hover, .stSidebar button:hover, [data-testid="stSidebar"] button:hover {
+    background-color: #555 !important;
+    border-color: #777 !important;
+}
+
+/* Slider en la sidebar */
+.css-1d391kg .stSlider, .stSidebar .stSlider, [data-testid="stSidebar"] .stSlider {
+    color: white !important;
+}
+
+/* Markdown text en la sidebar */
+.css-1d391kg .markdown-text-container, 
+.stSidebar .markdown-text-container,
+[data-testid="stSidebar"] .markdown-text-container {
+    color: white !important;
+}
+
+/* Links en la sidebar */
+.css-1d391kg a, .stSidebar a, [data-testid="stSidebar"] a {
+    color: #87CEEB !important; /* Light blue for links */
+}
+
+/* Separadores y líneas */
+.css-1d391kg hr, .stSidebar hr, [data-testid="stSidebar"] hr {
+    border-color: #555 !important;
+}
+
+/* Expander content */
+.css-1d391kg .streamlit-expanderContent,
+.stSidebar .streamlit-expanderContent,
+[data-testid="stSidebar"] .streamlit-expanderContent {
+    background-color: #333 !important;
+    color: white !important;
+}
+
+/* Text input placeholder */
+.css-1d391kg input::placeholder,
+.stSidebar input::placeholder,
+[data-testid="stSidebar"] input::placeholder {
+    color: #ccc !important;
+}

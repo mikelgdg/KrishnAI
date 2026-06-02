@@ -1,0 +1,6 @@
+PyMuPDF==1.23.26
+google-generativeai>=0.3.0
+reportlab>=4.0.0
+streamlit>=1.40.0
+ebooklib>=0.19
+beautifulsoup4>=4.13.0

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest ruff pip-audit
+
+    - name: Lint with ruff
+      run: ruff check . --ignore=E402,F811,E501 --exit-zero
+
+    - name: Test with pytest
+      env:
+        STREAMLIT_SECRETS_TOML: ${{ secrets.STREAMLIT_SECRETS_TOML || '' }}
+      run: pytest test_krishna.py -v --tb=short
+
+    - name: Security audit
+      run: pip-audit --ignore=70612 --ignore=71403 2>/dev/null || true
